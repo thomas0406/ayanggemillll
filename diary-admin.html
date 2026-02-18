@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>📔 Diary</title>
+  <style>
+    :root {
+      --bg-1: #04040b;
+      --bg-2: #00122a;
+      --accent: #00e5ff;
+      --accent2: #ff00d0;
+      --text: #e6f7ff;
+      --muted: #8fa3b3;
+      --success: #00ff88;
+      --error: #ff6b6b;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    .header-content h1 {
+      font-size: 2.5em;
+      font-weight: 700;
+      margin: 0 0 5px 0;
+      letter-spacing: 1px;
+      color: var(--text);
+      text-shadow: 0 0 6px rgba(255,255,255,0.10),
+                   0 0 14px rgba(0,229,255,0.14),
+                   0 0 26px rgba(255,0,208,0.06);
+    }
+
+    .header-content p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95em;
+      letter-spacing: 0.5px;
+    }
+
+    .logout-btn {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, rgba(255,107,107,0.15), rgba(255,107,107,0.08));
+      border: 1px solid rgba(255,107,107,0.4);
+      border-radius: 8px;
+      color: var(--error);
+      font-weight: 600;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, rgba(255,107,107,0.25), rgba(255,107,107,0.15));
+      border-color: rgba(255,107,107,0.6);
+      box-shadow: 0 4px 12px rgba(255,107,107,0.2);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card {
+      background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(255,0,208,0.02));
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 16px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 30px;
+      animation: slideUp 0.6s ease-out;
+      box-shadow: 0 8px 32px rgba(0,229,255,0.1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-card h2 {
+      font-size: 1.5em;
+      margin: 0 0 20px 0;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="file"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.3);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1em;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="file"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      background: rgba(0,229,255,0.12);
+      border-color: rgba(0,229,255,0.6);
+      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+    }
+
+    .image-upload-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .image-upload-item {
+      position: relative;
+      border: 2px dashed rgba(0,229,255,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,229,255,0.03);
+    }
+
+    .image-upload-item:hover {
+      border-color: rgba(0,229,255,0.6);
+      background: rgba(0,229,255,0.08);
+      box-shadow: 0 0 12px rgba(0,229,255,0.15);
+    }
+
+    .image-upload-item.has-image {
+      border: 2px solid rgba(0,229,255,0.4);
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-upload-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-upload-item .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255,107,107,0.8);
+      color: white;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      opacity: 0;
+    }
+
+    .image-upload-item.has-image:hover .remove-btn {
+      opacity: 1;
+    }
+
+    .image-upload-item .remove-btn:hover {
+      background: rgba(255,107,107,1);
+      transform: scale(1.1);
+    }
+
+    .image-placeholder {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .image-text {
+      font-size: 0.85em;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+
+    button {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(255,0,208,0.1));
+      border: 1px solid rgba(0,229,255,0.4);
+      border-radius: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, rgba(0,229,255,0.35), rgba(255,0,208,0.15));
+      border-color: rgba(0,229,255,0.7);
+      box-shadow: 0 4px 16px rgba(0,229,255,0.25);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .delete-btn {
+      background: linear-gradient(135deg, rgba(255,107,107,0.15), rgba(255,107,107,0.08));
+      border-color: rgba(255,107,107,0.4);
+      color: var(--error);
+    }
+
+    .delete-btn:hover {
+      background: linear-gradient(135deg, rgba(255,107,107,0.3), rgba(255,107,107,0.15));
+      border-color: rgba(255,107,107,0.6);
+      box-shadow: 0 4px 16px rgba(255,107,107,0.2);
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.08));
+      border-color: rgba(0,255,136,0.4);
+      color: var(--success);
+    }
+
+    .export-btn:hover {
+      background: linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,255,136,0.15));
+      border-color: rgba(0,255,136,0.6);
+      box-shadow: 0 4px 16px rgba(0,255,136,0.2);
+    }
+
+    .entries-section {
+      margin-top: 40px;
+    }
+
+    .entries-section h2 {
+      font-size: 1.5em;
+      margin: 0 0 20px 0;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .entry-item {
+      background: rgba(0,229,255,0.05);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    .entry-item:hover {
+      border-color: rgba(0,229,255,0.4);
+      background: rgba(0,229,255,0.08);
+      box-shadow: 0 4px 12px rgba(0,229,255,0.15);
+      transform: translateX(5px);
+    }
+
+    .entry-item h3 {
+      font-size: 1.3em;
+      color: var(--text);
+      margin: 0 0 8px 0;
+      font-weight: 700;
+    }
+
+    .entry-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 0.9em;
+      color: var(--muted);
+      margin: 0 0 15px 0;
+      flex-wrap: wrap;
+    }
+
+    .entry-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .entry-description {
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .entry-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .entry-image {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(0,229,255,0.2);
+    }
+
+    .entry-audio {
+      margin-top: 15px;
+    }
+
+    .entry-audio audio {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(255,0,208,0.02));
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 16px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: var(--error);
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,229,255,0.1));
+      border: 1px solid rgba(0,255,136,0.4);
+      border-radius: 8px;
+      padding: 15px 20px;
+      color: var(--success);
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+      max-width: 300px;
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,107,107,0.1));
+      border-color: rgba(255,107,107,0.4);
+      color: var(--error);
+    }
+
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      .form-card {
+        padding: 20px;
+      }
+
+      .neon-title {
+        font-size: 1.8em;
+      }
+
+      .image-upload-group {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      button {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 0.85em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>📔 DIARY ADMIN</h1>
+        <p>Kelola entri diary harian Anda</p>
+      </div>
+      <button class="logout-btn" id="logoutBtn">🚪 LOGOUT</button>
+    </header>
+
+    <!-- Form Tambah Entry -->
+    <div class="form-card">
+      <h2>✏️ Tambah Entri Baru</h2>
+      
+      <div class="form-group">
+        <label for="entryTitle">📝 Judul (Tebal & Besar)</label>
+        <input type="text" id="entryTitle" placeholder="Judul untuk entri hari ini...">
+      </div>
+
+      <div class="form-group">
+        <label for="entryDate">📅 Tanggal</label>
+        <input type="date" id="entryDate">
+      </div>
+
+      <div class="form-group">
+        <label for="entryDescription">📄 Deskripsi (Tebal)</label>
+        <textarea id="entryDescription" placeholder="Tulis deskripsi atau cerita Anda di sini..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>🖼️ Upload Gambar (Max 2 Foto)</label>
+        <div class="image-upload-group">
+          <div class="image-upload-item" id="imageUpload1" onclick="document.getElementById('imageFile1').click()">
+            <div class="image-placeholder">🖼️</div>
+            <div class="image-text">Foto 1</div>
+          </div>
+          <div class="image-upload-item" id="imageUpload2" onclick="document.getElementById('imageFile2').click()">
+            <div class="image-placeholder">🖼️</div>
+            <div class="image-text">Foto 2</div>
+          </div>
+        </div>
+        <input type="file" id="imageFile1" accept="image/*">
+        <input type="file" id="imageFile2" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="entryAudio">🎵 Upload Musik (Opsional)</label>
+        <input type="file" id="entryAudio" accept="audio/*">
+      </div>
+
+      <div class="button-group">
+        <button id="saveBtn">💾 SIMPAN ENTRI</button>
+        <button class="delete-btn" id="resetBtn">🔄 RESET</button>
+      </div>
+    </div>
+
+    <!-- Section Entri -->
+    <div class="entries-section">
+      <h2>📚 Entri Anda</h2>
+      <div id="entriesList"></div>
+    </div>
+
+    <!-- Export/Import -->
+    <div class="form-card" style="margin-top: 30px;">
+      <h2>⚙️ Backup Data</h2>
+      <div class="button-group">
+        <button class="export-btn" id="exportBtn">💾 EXPORT BACKUP</button>
+        <button class="export-btn" id="importBtn">📂 IMPORT BACKUP</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+      </div>
+    </div>
+
+    <!-- Password Management -->
+    <div class="form-card" style="margin-top: 30px;">
+      <h2>🔐 Atur Password Admin</h2>
+      <div class="form-group">
+        <label for="newPassword">Password Baru</label>
+        <input type="password" id="newPassword" placeholder="Masukkan password baru (min. 6 karakter)...">
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Konfirmasi Password</label>
+        <input type="password" id="confirmPassword" placeholder="Konfirmasi password...">
+      </div>
+      <div class="button-group">
+        <button id="updatePasswordBtn" style="flex: 1;">💾 SIMPAN PASSWORD BARU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal untuk edit entry -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <h2 style="color: var(--accent); margin-top: 0;">Perbarui Entri</h2>
+      
+      <div class="form-group">
+        <label for="editTitle">Judul</label>
+        <input type="text" id="editTitle">
+      </div>
+
+      <div class="form-group">
+        <label for="editDate">Tanggal</label>
+        <input type="date" id="editDate">
+      </div>
+
+      <div class="form-group">
+        <label for="editDescription">Deskripsi</label>
+        <textarea id="editDescription"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Gambar</label>
+        <div class="image-upload-group" id="editImageGroup"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="editAudio">Musik</label>
+        <input type="file" id="editAudio" accept="audio/*">
+      </div>
+
+      <div class="button-group">
+        <button id="updateBtn">Perbarui</button>
+        <button class="delete-btn" id="deleteEntryBtn">Hapus Entri</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Debug mode variable
+    let DEBUG_MODE = true;
+    
+    function debugLog(msg, data = null) {
+      if (DEBUG_MODE) {
+        console.log('[DIARY DEBUG] ' + msg, data || '');
+      }
+    }
+
+    // Canvas Background Animation
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Draw small particles
+    let particles = [];
+
+    class TinyParticle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 0.5 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.color = Math.random() > 0.5 ? 'rgba(0,229,255,' : 'rgba(255,0,208,';
+      }
+
+      draw() {
+        ctx.fillStyle = this.color + this.opacity + ')';
+        ctx.filter = 'drop-shadow(0 0 2px ' + this.color + this.opacity * 0.8 + '))';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.filter = 'none';
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity += (Math.random() - 0.5) * 0.01;
+        this.opacity = Math.max(0.1, Math.min(0.6, this.opacity));
+
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+      }
+    }
+
+    // Initialize particles
+    for (let i = 0; i < 50; i++) {
+      particles.push(new TinyParticle());
+    }
+
+    function animateBackground() {
+      ctx.fillStyle = 'transparent';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      requestAnimationFrame(animateBackground);
+    }
+
+    animateBackground();
+
+    // Particle effect on button hover
+    function createButtonParticles(x, y) {
+      for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const angle = (Math.PI * 2 * i) / 8;
+        const velocity = 2 + Math.random() * 2;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity;
+        
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = Math.random() > 0.5 ? 'rgba(0,229,255,0.8)' : 'rgba(255,0,208,0.8)';
+        particle.style.borderRadius = '50%';
+        particle.style.boxShadow = '0 0 6px ' + particle.style.background;
+
+        document.body.appendChild(particle);
+
+        let life = 0.8;
+        const updateParticle = () => {
+          x += vx;
+          y += vy;
+          life -= 0.02;
+          particle.style.left = x + 'px';
+          particle.style.top = y + 'px';
+          particle.style.opacity = life;
+
+          if (life > 0) {
+            requestAnimationFrame(updateParticle);
+          } else {
+            particle.remove();
+          }
+        };
+        updateParticle();
+      }
+    }
+
+    // Add particle effect to buttons
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        createButtonParticles(e.clientX, e.clientY);
+      });
+    });
+
+    // Set today's date as default
+    document.getElementById('entryDate').valueAsDate = new Date();
+
+    // Image upload handlers with compression
+    let imageData = {};
+
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          // Create canvas and compress
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Resize if image is too large
+          const maxWidth = 1200;
+          const maxHeight = 1200;
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with quality 0.7
+          canvas.toBlob(function(blob) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              callback(e.target.result);
+            };
+            reader.readAsDataURL(blob);
+          }, 'image/jpeg', 0.7);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleImageUpload(fileInput, uploadDiv, imageIndex) {
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          // Check file size (max 10MB for original)
+          if (file.size > 10 * 1024 * 1024) {
+            showToast('Ukuran file terlalu besar (max 10MB)', true);
+            return;
+          }
+
+          // Check file type
+          if (!file.type.startsWith('image/')) {
+            showToast('File harus berupa gambar!', true);
+            return;
+          }
+
+          compressImage(file, function(compressedDataUrl) {
+            const img = new Image();
+            img.src = compressedDataUrl;
+            img.onload = function() {
+              uploadDiv.innerHTML = '';
+              uploadDiv.classList.add('has-image');
+              uploadDiv.appendChild(img);
+              
+              const removeBtn = document.createElement('button');
+              removeBtn.className = 'remove-btn';
+              removeBtn.innerHTML = '✕';
+              removeBtn.type = 'button';
+              removeBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                delete imageData[imageIndex];
+                fileInput.value = '';
+                uploadDiv.classList.remove('has-image');
+                uploadDiv.innerHTML = `<div class="image-placeholder">🖼️</div><div class="image-text">Foto ${imageIndex}</div>`;
+              };
+              uploadDiv.appendChild(removeBtn);
+              
+              imageData[imageIndex] = compressedDataUrl;
+              showToast('✅ Gambar berhasil diupload (dikompres)');
+            };
+          });
+        }
+      });
+    }
+
+    handleImageUpload(document.getElementById('imageFile1'), document.getElementById('imageUpload1'), '1');
+    handleImageUpload(document.getElementById('imageFile2'), document.getElementById('imageUpload2'), '2');
+
+    // Audio file handling
+    let audioData = null;
+
+    document.getElementById('entryAudio').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 50 * 1024 * 1024) { // Max 50MB
+          showToast('File audio terlalu besar (max 50MB)', true);
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          audioData = event.target.result;
+          showToast('File audio dimuat: ' + file.name);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Save entry
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      const title = document.getElementById('entryTitle').value.trim();
+      const date = document.getElementById('entryDate').value;
+      const description = document.getElementById('entryDescription').value.trim();
+
+      if (!title) {
+        showToast('Judul tidak boleh kosong!', true);
+        return;
+      }
+
+      if (!description) {
+        showToast('Deskripsi tidak boleh kosong!', true);
+        return;
+      }
+
+      debugLog('Gambar yang disiapkan:', imageData);
+      debugLog('Jumlah gambar:', Object.keys(imageData).length);
+
+      const entry = {
+        id: Date.now(),
+        title,
+        date,
+        description,
+        images: { ...imageData },
+        audio: audioData,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        let entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+        entries.unshift(entry);
+        
+        // Try to save to localStorage
+        const dataStr = JSON.stringify(entries);
+        
+        // Check size (rough estimate)
+        const sizeInBytes = new Blob([dataStr]).size;
+        const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+        debugLog('Ukuran data yang akan disimpan (MB):', sizeInMB);
+        
+        if (sizeInBytes > 4.5 * 1024 * 1024) {
+          showToast('⚠️ Data terlalu besar (' + sizeInMB + 'MB)! Hapus beberapa entri lama atau kompres gambar lebih lanjut.', true);
+          return;
+        }
+        
+        localStorage.setItem('diaryEntries', dataStr);
+        debugLog('✓ Data berhasil disimpan ke localStorage');
+        
+        // Verify saved data
+        const verifyData = JSON.parse(localStorage.getItem('diaryEntries'));
+        const savedImages = Object.keys(verifyData[0].images || {}).length;
+        debugLog('✓ Verifikasi: Gambar yang tersimpan dalam entry terakhir:', savedImages);
+        
+        showToast('✅ Entri berhasil disimpan! (' + sizeInMB + 'MB)');
+        resetForm();
+        loadEntries();
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          debugLog('❌ Storage penuh!', e);
+          showToast('❌ Storage penuh! Hapus beberapa entri lama untuk membuat ruang.', true);
+        } else {
+          debugLog('❌ Error:', e);
+          showToast('❌ Error: ' + e.message, true);
+        }
+      }
+    });
+
+    // Reset form
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      resetForm();
+    });
+
+    function resetForm() {
+      document.getElementById('entryTitle').value = '';
+      document.getElementById('entryDate').valueAsDate = new Date();
+      document.getElementById('entryDescription').value = '';
+      document.getElementById('imageFile1').value = '';
+      document.getElementById('imageFile2').value = '';
+      document.getElementById('entryAudio').value = '';
+      imageData = {};
+      audioData = null;
+
+      document.getElementById('imageUpload1').classList.remove('has-image');
+      document.getElementById('imageUpload1').innerHTML = '<div class="image-placeholder">🖼️</div><div class="image-text">Foto 1</div>';
+
+      document.getElementById('imageUpload2').classList.remove('has-image');
+      document.getElementById('imageUpload2').innerHTML = '<div class="image-placeholder">🖼️</div><div class="image-text">Foto 2</div>';
+    }
+
+    // Load entries
+    function loadEntries() {
+      const entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+      const entriesList = document.getElementById('entriesList');
+
+      if (entries.length === 0) {
+        entriesList.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 0;">Belum ada entri. Mulai tulis sekarang! 📝</p>';
+        return;
+      }
+
+      entriesList.innerHTML = entries.map((entry, index) => {
+        const dateObj = new Date(entry.date);
+        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        const images = Object.values(entry.images || {}).filter(img => !!img);
+        const hasImages = images.length > 0;
+
+        return `
+          <div class="entry-item" onclick="openEditModal(${index})">
+            <h3>${entry.title}</h3>
+            <div class="entry-meta">
+              <span>📅 ${formattedDate}</span>
+              ${hasImages ? `<span>📷 ${images.length} foto</span>` : ''}
+              ${entry.audio ? '<span>🎵 Ada musik</span>' : ''}
+            </div>
+            <div class="entry-description">
+              ${entry.description.substring(0, 150)}${entry.description.length > 150 ? '...' : ''}
+            </div>
+            ${hasImages ? `
+              <div class="entry-images">
+                ${images.slice(0, 2).map((img, idx) => `
+                  <img src="${img}" alt="Foto ${idx + 1}" class="entry-image">
+                `).join('')}
+              </div>
+            ` : ''}
+            ${entry.audio ? `
+              <div class="entry-audio">
+                <audio controls style="width: 100%; max-width: 300px;">
+                  <source src="${entry.audio}" type="audio/mpeg">
+                </audio>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Edit modal
+    let currentEditingIndex = null;
+
+    function openEditModal(index) {
+      currentEditingIndex = index;
+      const entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+      const entry = entries[index];
+
+      document.getElementById('editTitle').value = entry.title;
+      document.getElementById('editDate').value = entry.date;
+      document.getElementById('editDescription').value = entry.description;
+
+      // Handle images in modal
+      const imageGroup = document.getElementById('editImageGroup');
+      imageGroup.innerHTML = '';
+
+      Object.entries(entry.images || {}).forEach(([key, imgData]) => {
+        const div = document.createElement('div');
+        div.className = 'image-upload-item has-image';
+        div.onclick = (e) => e.stopPropagation();
+        
+        const img = document.createElement('img');
+        img.src = imgData;
+        div.appendChild(img);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '✕';
+        removeBtn.type = 'button';
+        removeBtn.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          delete entry.images[key];
+          div.remove();
+        };
+        div.appendChild(removeBtn);
+        imageGroup.appendChild(div);
+      });
+
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show');
+      currentEditingIndex = null;
+    }
+
+    document.getElementById('updateBtn').addEventListener('click', function() {
+      if (currentEditingIndex === null) return;
+
+      const entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+      const entry = entries[currentEditingIndex];
+
+      entry.title = document.getElementById('editTitle').value.trim();
+      entry.date = document.getElementById('editDate').value;
+      entry.description = document.getElementById('editDescription').value.trim();
+
+      // Check for new audio file
+      const audioInput = document.getElementById('editAudio');
+      if (audioInput.files.length > 0) {
+        const file = audioInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          entry.audio = e.target.result;
+          try {
+            localStorage.setItem('diaryEntries', JSON.stringify(entries));
+            showToast('✅ Entri berhasil diperbarui!');
+            closeEditModal();
+            loadEntries();
+          } catch (err) {
+            showToast('❌ Error saat menyimpan: ' + err.message, true);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        try {
+          localStorage.setItem('diaryEntries', JSON.stringify(entries));
+          showToast('✅ Entri berhasil diperbarui!');
+          closeEditModal();
+          loadEntries();
+        } catch (err) {
+          showToast('❌ Error saat menyimpan: ' + err.message, true);
+        }
+      }
+    });
+
+    document.getElementById('deleteEntryBtn').addEventListener('click', function() {
+      if (confirm('Apakah Anda yakin ingin menghapus entri ini?')) {
+        const entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+        entries.splice(currentEditingIndex, 1);
+        localStorage.setItem('diaryEntries', JSON.stringify(entries));
+        showToast('🗑️ Entri berhasil dihapus!');
+        closeEditModal();
+        loadEntries();
+      }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditModal();
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+
+    // Export backup
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      const entries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+      const backup = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        entries: entries
+      };
+
+      const dataStr = JSON.stringify(backup, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `diary-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('✅ Backup berhasil diunduh!');
+    });
+
+    // Import backup
+    document.getElementById('importBtn').addEventListener('click', function() {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const backup = JSON.parse(event.target.result);
+          if (backup.entries && Array.isArray(backup.entries)) {
+            localStorage.setItem('diaryEntries', JSON.stringify(backup.entries));
+            showToast('✅ Backup berhasil di-import!');
+            loadEntries();
+            e.target.value = '';
+          } else {
+            showToast('Format file tidak valid!', true);
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Toast notification
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (isError ? ' error' : '');
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Password update handler
+    document.getElementById('updatePasswordBtn').addEventListener('click', function(e) {
+      createButtonParticles(e.clientX, e.clientY);
+      
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!newPassword) {
+        showToast('Password tidak boleh kosong!', true);
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        showToast('Password minimal 6 karakter!', true);
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showToast('Password tidak cocok!', true);
+        return;
+      }
+
+      localStorage.setItem('adminPassword', newPassword);
+      showToast('✅ Password berhasil diubah! Silahkan logout dan login kembali dengan password baru.');
+      
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+
+      // Auto logout after 3 seconds
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 3000);
+    });
+
+    // Load entries on page load
+    loadEntries();
+    
+    // Set default password if not exists
+    if (!localStorage.getItem('adminPassword')) {
+      localStorage.setItem('adminPassword', 'admin123');
+    }
+  </script>
+</body>
+</html>

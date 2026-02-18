@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>📔 Diary - Login</title>
+  <style>
+    :root {
+      --bg-1: #04040b;
+      --bg-2: #00122a;
+      --accent: #00e5ff;
+      --accent2: #ff00d0;
+      --text: #e6f7ff;
+      --muted: #8fa3b3;
+      --success: #00ff88;
+      --error: #ff6b6b;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      min-height: 100vh;
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 40px 20px;
+    }
+
+    .login-box {
+      background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(255,0,208,0.02));
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 16px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      animation: slideUp 0.6s ease-out;
+      box-shadow: 0 8px 32px rgba(0,229,255,0.1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .neon-title {
+      font-size: 2.2em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      color: var(--text);
+      text-shadow: 0 0 6px rgba(255,255,255,0.10),
+                   0 0 14px rgba(0,229,255,0.14),
+                   0 0 26px rgba(255,0,208,0.06);
+      filter: drop-shadow(0 0 12px rgba(0,229,255,0.18));
+      text-align: center;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95em;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.3);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1em;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input[type="password"]:focus,
+    input[type="text"]:focus {
+      outline: none;
+      background: rgba(0,229,255,0.12);
+      border-color: rgba(0,229,255,0.6);
+      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(255,0,208,0.1));
+      border: 1px solid rgba(0,229,255,0.4);
+      border-radius: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, rgba(0,229,255,0.35), rgba(255,0,208,0.15));
+      border-color: rgba(0,229,255,0.7);
+      box-shadow: 0 4px 16px rgba(0,229,255,0.25);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .admin-btn {
+      background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(255,0,208,0.08));
+      border-color: rgba(0,229,255,0.5);
+    }
+
+    .visitor-btn {
+      background: linear-gradient(135deg, rgba(255,0,208,0.12), rgba(0,229,255,0.08));
+      border-color: rgba(255,0,208,0.4);
+      color: var(--accent2);
+    }
+
+    .visitor-btn:hover {
+      border-color: rgba(255,0,208,0.7);
+      box-shadow: 0 4px 16px rgba(255,0,208,0.2);
+    }
+
+    .error-message {
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.3);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--error);
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      display: none;
+      text-align: center;
+    }
+
+    .error-message.show {
+      display: block;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @media (max-width: 600px) {
+      .login-box {
+        padding: 30px 20px;
+      }
+
+      .neon-title {
+        font-size: 1.8em;
+      }
+
+      button {
+        padding: 10px 16px;
+        font-size: 0.85em;
+      }
+    }
+
+    /* Particle system for button hover */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  
+  <div class="container">
+    <div class="login-box">
+      <h1 class="neon-title">📔 DIARY</h1>
+      <p class="subtitle">KAMU ORANG YANG SANGAT DICINTAII THOMASS</p>
+      
+      <div class="error-message" id="errorMessage"></div>
+
+      <div id="adminPanel">
+        <div class="form-group">
+          <label for="adminPassword">🔐 Password Admin</label>
+          <input type="password" id="adminPassword" placeholder="Masukkan password...">
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="admin-btn" id="adminBtn">🔒 LOGIN ADMIN</button>
+        <button class="visitor-btn" id="visitorBtn">👁️PENGUNJUNG</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Canvas Background Animation
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Draw small particles
+    let particles = [];
+
+    class TinyParticle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 0.5 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.color = Math.random() > 0.5 ? 'rgba(0,229,255,' : 'rgba(255,0,208,';
+      }
+
+      draw() {
+        ctx.fillStyle = this.color + this.opacity + ')';
+        ctx.filter = 'drop-shadow(0 0 2px ' + this.color + this.opacity * 0.8 + '))';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.filter = 'none';
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity += (Math.random() - 0.5) * 0.01;
+        this.opacity = Math.max(0.1, Math.min(0.6, this.opacity));
+
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+      }
+    }
+
+    // Initialize particles
+    for (let i = 0; i < 50; i++) {
+      particles.push(new TinyParticle());
+    }
+
+    function animateBackground() {
+      ctx.fillStyle = 'transparent';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      requestAnimationFrame(animateBackground);
+    }
+
+    animateBackground();
+
+    // Particle effect on button hover
+    function createButtonParticles(x, y) {
+      for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const angle = (Math.PI * 2 * i) / 8;
+        const velocity = 2 + Math.random() * 2;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity;
+        
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = Math.random() > 0.5 ? 'rgba(0,229,255,0.8)' : 'rgba(255,0,208,0.8)';
+        particle.style.borderRadius = '50%';
+        particle.style.boxShadow = '0 0 6px ' + particle.style.background;
+
+        document.body.appendChild(particle);
+
+        let life = 0.8;
+        const updateParticle = () => {
+          x += vx;
+          y += vy;
+          life -= 0.02;
+          particle.style.left = x + 'px';
+          particle.style.top = y + 'px';
+          particle.style.opacity = life;
+
+          if (life > 0) {
+            requestAnimationFrame(updateParticle);
+          } else {
+            particle.remove();
+          }
+        };
+        updateParticle();
+      }
+    }
+
+    // Admin Login
+    document.getElementById('adminBtn').addEventListener('click', function(e) {
+      createButtonParticles(e.clientX, e.clientY);
+      const password = document.getElementById('adminPassword').value;
+      const correctPassword = localStorage.getItem('adminPassword') || 'admin123';
+
+      if (password === '') {
+        showError('Masukkan password terlebih dahulu!');
+      } else if (password === correctPassword) {
+        window.location.href = 'diary-admin.html';
+      } else {
+        showError('Password salah!');
+        document.getElementById('adminPassword').value = '';
+      }
+    });
+
+    // Visitor Mode
+    document.getElementById('visitorBtn').addEventListener('click', function(e) {
+      createButtonParticles(e.clientX, e.clientY);
+      setTimeout(() => {
+        window.location.href = 'diary-public.html';
+      }, 100);
+    });
+
+    // Enter key support
+    document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('adminBtn').click();
+      }
+    });
+
+    function showError(msg) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+      setTimeout(() => {
+        errorEl.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# 📔 DIARY WEB - QUICK START
+
+## ⚡ Cara Cepat Jalankan
+
+### Pilihan 1: PowerShell (Tercanggih - Recommended)
+```powershell
+cd "d:\DIARY WEB"
+.\Start-Server.ps1
+```
+
+### Pilihan 2: Command Prompt (Jika PowerShell error)
+```cmd
+cd d:\DIARY WEB
+python -m http.server 8000
+```
+
+### Pilihan 3: Manual dengan Python
+```powershell
+cd "d:\DIARY WEB"
+python3 -m http.server 8000
+```
+
+---
+
+## 🌐 Buka Browser
+
+Setelah server running, buka:
+- **Desktop**: http://localhost:8000
+- **HP (WiFi Same)**: http://[IP_PC]:8000
+
+---
+
+## 🔐 Login Admin
+
+- **Password Default**: `admin123`
+- **Ubah Password**: Di panel admin, scroll ke bawah
+
+---
+
+## 🚀 Fitur Utama
+
+✅ Upload 2 Foto  
+✅ Upload Musik  
+✅ Edit/Hapus Entry  
+✅ Export/Import Backup  
+✅ Ubah Password  
+✅ Responsive HP & PC  
+✅ Tema Glow Tech
+
+---
+
+**🎉 Selesai! Mulai buat diary Anda**
